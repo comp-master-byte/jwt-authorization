@@ -1,15 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {LoginForm} from "./components/LoginForm";
 import {useAppDispatch} from "./store";
-import {checkAuthorization, logout} from "./store/auth/async-actions";
-import {User} from "./models/User";
-import {$api} from "./http";
+import {checkAuthorization, logout} from "./store/auth";
 import { useIsAuthorizationLoading, useIsUserAuthorized, useSelfUser } from './store/auth';
+import {UsersList} from "./components/UsersList";
 
 function App() {
   const dispatch = useAppDispatch();
-
-  const [users, setUsers] = useState<User[]>([]);
 
   const user = useSelfUser();
   const isLoading = useIsAuthorizationLoading();
@@ -17,11 +14,6 @@ function App() {
 
   function logoutUser() {
     dispatch(logout());
-  }
-
-  async function getUsers() {
-    const response = await $api.get<User[]>('/users');
-    setUsers(response.data);
   }
 
   useEffect(() => {
@@ -43,12 +35,7 @@ function App() {
       <h1>{isUserAuthorized ? `Пользователь авторизован: ${user?.email}` : 'Необходимо авторизоваться'}</h1>
       <h1>{user?.isActivated ? 'Почта активирована' : 'Необходимо подвердить аккаунт'}</h1>
       <button onClick={logoutUser}>Выйти</button>
-      <button onClick={getUsers}>Загрузить пользователей</button>
-      {users?.length > 0 ? users.map((user) => (
-        <div key={user.id}>
-          <h3>{user.email}</h3>
-        </div>
-      )) : ''}
+      <UsersList />
     </div>
   );
 }
